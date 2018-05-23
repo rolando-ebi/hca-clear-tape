@@ -26,9 +26,11 @@ def run():
     # map of bundle_uuid -> list of (filename, filesize, filehash) triples
     file_sizes_dict = dict()
     overall_size_count = 0
-
+    bundles_processed = 0
+    bundles_size = len(bundle_uuids)
     for uuid in bundle_uuids:
-        print("retrieving info for bundle " + str(uuid) + "\n")
+        bundle_num = bundles_processed + 1
+        print("retrieving info for bundle " + str(bundle_num) + " out of " + str(bundles_size) + " - " + uuid + "\n")
         bundle_json = bundle_service.get_bundle(uuid)
         files_details_for_bundle = bundle_service.get_name_size_hash_triples(bundle_json)
 
@@ -37,6 +39,8 @@ def run():
         for file_details in files_details_for_bundle:
             file_size = file_details['size']
             overall_size_count += file_size
+
+        bundles_processed += 1
 
     with open('bundles_details.json', 'w') as outfile_json:
         json.dump(file_sizes_dict, outfile_json)
