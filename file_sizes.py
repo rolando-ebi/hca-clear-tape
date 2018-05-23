@@ -28,6 +28,7 @@ def run():
     overall_size_count = 0
 
     for uuid in bundle_uuids:
+        print("retrieving info for bundle " + str(uuid) + "\n")
         bundle_json = bundle_service.get_bundle(uuid)
         files_details_for_bundle = bundle_service.get_name_size_hash_triples(bundle_json)
 
