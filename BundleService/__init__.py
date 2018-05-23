@@ -1,4 +1,6 @@
 import requests
+import time
+import json
 
 from Config import env
 
@@ -16,11 +18,26 @@ class BundleService:
                 response = requests.get(file_url, {'replica': 'aws'})
                 yield response.json()
 
-
     def get_bundle(self, uuid):
         bundle_url = '%s/bundles/%s' % (self.env.dss_api_url, uuid)
         response = requests.get(bundle_url, {'replica': 'aws'})
-        return response.json()['bundle']
+        if 200 <= response.status_code < 300:
+            return response.json()['bundle']
+        else:
+            raise(Exception("Error: status code %s, url %s, body: %s" % (str(response.status_code), response.url, json.dumps(response.json()))))
+
+    def get_bundle_with_retries(self, uuid, attempt_num, max_attempts):
+        if attempt_num == max_attempts:
+            raise(Exception(str(max_attempts) + " attempts failed to fetch bundle with uuid " + uuid + "\n"))
+        else:
+            try:
+                return self.get_bundle(uuid)
+            except Exception as e:
+                print(str(e))
+                time.sleep(1)
+                return self.get_bundle_with_retries(uuid, attempt_num + 1, max_attempts)
+
+
 
     def get_bundles(self, uuids):
         return map(lambda uuid: self.get_bundle(uuid), uuids)

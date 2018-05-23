@@ -31,7 +31,7 @@ def run():
     for uuid in bundle_uuids:
         bundle_num = bundles_processed + 1
         print("retrieving info for bundle " + str(bundle_num) + " out of " + str(bundles_size) + " - " + uuid + "\n")
-        bundle_json = bundle_service.get_bundle(uuid)
+        bundle_json = bundle_service.get_bundle_with_retries(uuid, 1, 10)
         files_details_for_bundle = bundle_service.get_name_size_hash_triples(bundle_json)
 
         file_sizes_dict[uuid] = files_details_for_bundle
