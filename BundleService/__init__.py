@@ -49,7 +49,17 @@ class BundleService:
         :param bundle_json:
         :return:
         '''
-        return [{'name': file['name'], 'size': file['size'], 'hash': file['s3_etag']} for file in filter(is_fastq_file, bundle_json['files'])]
+        return [self.bundle_file_to_file_size_hash_dict(file) for file in filter(is_fastq_file, bundle_json['files'])]
+
+    def bundle_file_to_file_size_hash_dict(self, file_dict):
+        name = file_dict['name']
+        size = file_dict['size']
+        s3etag = file_dict['s3_etag']
+        sha1 = file_dict['sha1']
+        sha256 = file_dict['sha256']
+        crc32 = file_dict['crc32c']
+
+        return {'name': name, 'size': size, 's3_etag': s3etag, 'sha256': sha256, 'sha1': sha1, 'crc32c': crc32}
 
 
 def is_data_file(file_json):

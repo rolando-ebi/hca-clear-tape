@@ -4,7 +4,7 @@ from Config import env
 import sys
 import traceback
 import json
-
+from functools import reduce
 
 def parse_bundles_from_file(bundle_list_file_name):
     with open(bundle_list_file_name, encoding='utf-8') as bundle_list_file:
@@ -12,9 +12,31 @@ def parse_bundles_from_file(bundle_list_file_name):
 
 
 def bundles_details_dicts_to_tsv(bundles_details):
+    yield tsv_header()
     for (bundle_uuid, files_details) in bundles_details.items():
         for file_details in files_details:
-            yield bundle_uuid + "\t" + file_details['name'] + "\t" + str(file_details['size']) + "\t" + file_details['hash'] + "\n"
+            tsv_line = []
+            tsv_line.append(bundle_uuid + "\t")
+            tsv_line.append(file_details['name'] + "\t")
+            tsv_line.append(str(file_details['size']) + "\t")
+            tsv_line.append(file_details['s3_etag'] + "\t")
+            tsv_line.append(file_details['sha256'] + "\t")
+            tsv_line.append(file_details['sha1'] + "\t")
+            tsv_line.append(file_details['crc32c'] + "\n")
+
+            yield reduce(lambda x, y: x + y, tsv_line)
+
+def tsv_header():
+    tsv_line = []
+    tsv_line.append("bundle_uuid" + "\t")
+    tsv_line.append("name" + "\t")
+    tsv_line.append("size" + "\t")
+    tsv_line.append("s3_etag" + "\t")
+    tsv_line.append("sha256" + "\t")
+    tsv_line.append("sha1" + "\t")
+    tsv_line.append("crc32c" + "\n")
+
+    return reduce(lambda x, y: x + y, tsv_line)
 
 def run():
     bundle_list_file = sys.argv[1]
